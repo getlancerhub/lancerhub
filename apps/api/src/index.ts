@@ -3,6 +3,11 @@ import Fastify from 'fastify'
 import cors from '@fastify/cors'
 import helmet from '@fastify/helmet'
 import rateLimit from '@fastify/rate-limit'
+import jwt from '@fastify/jwt'
+import cookie from '@fastify/cookie'
+import swagger from '@fastify/swagger'
+import swaggerUi from '@fastify/swagger-ui'
+import { authRoutes } from './routes/auth.js'
 
 const app = Fastify({
   logger: {
@@ -56,6 +61,56 @@ await app.register(rateLimit, {
   }),
 })
 
+// JWT Authentication
+await app.register(jwt, {
+  secret: process.env.JWT_ACCESS_SECRET || 'your-access-secret-key',
+  cookie: {
+    cookieName: 'accessToken',
+    signed: false,
+  },
+})
+
+// Cookie support
+await app.register(cookie, {
+  secret: process.env.COOKIE_SECRET || 'your-cookie-secret-key',
+  hook: 'onRequest',
+})
+
+// API Documentation with Swagger
+await app.register(swagger, {
+  openapi: {
+    openapi: '3.0.0',
+    info: {
+      title: 'LancerHub API',
+      description: 'Complete freelancer operations platform API',
+      version: '1.0.0',
+    },
+    servers: [
+      {
+        url: 'http://localhost:3001',
+        description: 'Development server',
+      },
+    ],
+    tags: [
+      { name: 'Authentication', description: 'User authentication endpoints' },
+      { name: 'Health', description: 'Health check endpoints' },
+    ],
+  },
+})
+
+await app.register(swaggerUi, {
+  routePrefix: '/docs',
+  uiConfig: {
+    docExpansion: 'list',
+    deepLinking: false,
+  },
+  staticCSP: true,
+  transformStaticCSP: header => header,
+})
+
+// Register auth routes
+await app.register(authRoutes)
+
 // Health check endpoint
 app.get('/health', async (_request, _reply) => {
   return {
@@ -77,22 +132,24 @@ app.get('/ready', async (_request, _reply) => {
 })
 
 // Global error handler
-app.setErrorHandler((error: Error, request, reply) => {
-  const isDev = process.env.NODE_ENV !== 'production'
+app.setErrorHandler(
+  (error: Error & { statusCode?: number }, request, reply) => {
+    const isDev = process.env.NODE_ENV !== 'production'
 
-  request.log.error(error)
+    request.log.error(error)
 
-  // Don't expose internal errors in production
-  const statusCode = (error as any).statusCode || 500
-  const message = isDev ? error.message : 'Internal Server Error'
+    // Don't expose internal errors in production
+    const statusCode = error.statusCode || 500
+    const message = isDev ? error.message : 'Internal Server Error'
 
-  reply.status(statusCode).send({
-    error: true,
-    message,
-    statusCode,
-    ...(isDev && { stack: error.stack }),
-  })
-})
+    reply.status(statusCode).send({
+      error: true,
+      message,
+      statusCode,
+      ...(isDev && { stack: error.stack }),
+    })
+  }
+)
 
 // Graceful shutdown
 process.on('SIGTERM', () => {

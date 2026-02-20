@@ -6,29 +6,44 @@ import prettier from 'eslint-config-prettier'
 export default [
   js.configs.recommended,
   {
-    files: ['**/*.{ts,tsx,js,jsx}'],
+    files: ['**/*.{ts,tsx}'],
     languageOptions: {
       parser: tsparser,
       parserOptions: {
         ecmaVersion: 'latest',
         sourceType: 'module',
-        project: ['./tsconfig.json', './apps/*/tsconfig.json', './packages/*/tsconfig.json'],
-        tsconfigRootDir: import.meta.dirname,
+      },
+      globals: {
+        process: 'readonly',
+        Buffer: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        console: 'readonly',
       },
     },
     plugins: {
       '@typescript-eslint': tseslint,
     },
     rules: {
-      ...tseslint.configs.recommended.rules,
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       '@typescript-eslint/no-explicit-any': 'warn',
+      'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       'prefer-const': 'error',
       'no-var': 'error',
+      'preserve-caught-error': 'off',
     },
   },
   {
-    files: ['**/*.js'],
+    files: ['**/*.{js,jsx}'],
+    languageOptions: {
+      globals: {
+        process: 'readonly',
+        Buffer: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        console: 'readonly',
+      },
+    },
     rules: {
       '@typescript-eslint/no-require-imports': 'off',
     },
