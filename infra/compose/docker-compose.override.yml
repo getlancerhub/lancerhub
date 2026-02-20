@@ -67,10 +67,9 @@ services:
       dockerfile: Dockerfile.dev
     command: ["npm", "run", "dev"]
     volumes:
-      # Mount source code for hot reload
-      - ../../apps/web:/app:ro
+      # Mount source code for hot reload (Next.js needs write access for generated files)
+      - ../../apps/web:/app
       - /app/node_modules
-      - /app/.next
     environment:
       NODE_ENV: development
       NEXT_TELEMETRY_DISABLED: 1
