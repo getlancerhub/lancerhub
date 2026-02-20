@@ -1,0 +1,32 @@
+# Build outputs
+dist/
+build/
+out/
+.next/
+coverage/
+
+# Dependencies
+node_modules/
+
+# Generated files
+*.generated.*
+*.min.*
+package-lock.json
+yarn.lock
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+
+# Git
+.git/
+
+# Logs
+*.log
+
+# Environment
+.env*
+
+# Database
+*.sql
+drizzle/

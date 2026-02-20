@@ -1,0 +1,136 @@
+# === LancerHub Monorepo .gitignore ===
+
+# === Node.js & NPM ===
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+*.tgz
+*.tar.gz
+
+# === Environment & Config ===
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+
+# === Build Outputs ===
+dist/
+build/
+out/
+.next/
+coverage/
+*.tsbuildinfo
+.cache/
+
+# === Logs ===
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# === Runtime & Temporary ===
+.npm
+.eslintcache
+.node_repl_history
+*.tmp
+*.temp
+.tmp/
+.temp/
+
+# === Test Coverage ===
+coverage/
+.nyc_output
+.coverage
+*.lcov
+
+# === TypeScript ===
+*.tsbuildinfo
+.tscache/
+
+# === Next.js ===
+.next/
+out/
+next-env.d.ts
+
+# === Docker ===
+.dockerignore
+docker-compose.override.local.yml
+
+# === Database ===
+*.db
+*.sqlite
+*.sqlite3
+/data/
+/postgres-data/
+/redis-data/
+/minio-data/
+
+# === IDE & Editors ===
+.vscode/launch.json
+.vscode/tasks.json
+.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+
+# === OS Files ===
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*.lnk
+
+# === Backup Files ===
+*.bak
+*.backup
+*.old
+*.orig
+
+# === Certificates & Keys ===
+*.pem
+*.key
+*.cert
+*.crt
+*.p12
+*.pfx
+
+# === Local Development ===
+/local/
+/temp/
+/tmp/
+.local/
+
+# === Package Manager Locks (keep package-lock.json for apps, ignore for packages) ===
+packages/*/package-lock.json
+packages/*/yarn.lock
+
+# === Drizzle Generated Files ===
+packages/db/drizzle/
+*.db.sql
+
+# === Docker Volumes ===
+/volumes/
+/docker-data/
+
+# === Local Environment Overrides ===
+docker-compose.local.yml
+docker-compose.override.local.yml
+infra/compose/.env
+
+# === Miscellaneous ===
+*.patch
+*.diff
+.husky/_/

@@ -1,0 +1,50 @@
+{
+  "name": "lancerhub",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "npm -ws run dev --if-present",
+    "build": "npm -ws run build --if-present",
+    "start": "npm -ws run start --if-present",
+    "lint": "npm -ws run lint --if-present",
+    "typecheck": "npm -ws run typecheck --if-present",
+    "test": "npm -ws run test --if-present",
+    "test:integration": "echo \"Integration tests not implemented yet\"",
+    "test:e2e": "echo \"E2E tests not implemented yet\"",
+    "generate": "npm run generate --workspace=packages/db",
+    "migrate": "npm run migrate --workspace=packages/db",
+    "db:studio": "npm run studio --workspace=packages/db",
+    "docker:up": "docker-compose -f infra/compose/docker-compose.yml up -d",
+    "docker:down": "docker-compose -f infra/compose/docker-compose.yml down",
+    "docker:build": "docker-compose -f infra/compose/docker-compose.yml build",
+    "docker:logs": "docker-compose -f infra/compose/docker-compose.yml logs -f",
+    "setup": "./scripts/dev-setup.sh",
+    "deploy:prod": "./scripts/prod-deploy.sh",
+    "clean": "npm -ws run clean --if-present && rm -rf node_modules",
+    "reset": "npm run clean && npm install",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepare": "husky"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "private": "true",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "devDependencies": {
+    "@commitlint/cli": "^19.6.0",
+    "@commitlint/config-conventional": "^19.6.0",
+    "@types/node": "^25.3.0",
+    "eslint": "^4.0.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.3.0",
+    "prettier": "^3.8.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,96 @@
+{$DOMAIN:localhost} {
+    # Security headers
+    header {
+        # Enable HSTS
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        
+        # Prevent MIME sniffing
+        X-Content-Type-Options "nosniff"
+        
+        # Prevent clickjacking
+        X-Frame-Options "DENY"
+        
+        # Enable XSS protection
+        X-XSS-Protection "1; mode=block"
+        
+        # Referrer policy
+        Referrer-Policy "strict-origin-when-cross-origin"
+        
+        # Content Security Policy
+        Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self'; frame-ancestors 'none';"
+        
+        # Remove server info
+        -Server
+        -X-Powered-By
+    }
+
+    # Main application
+    handle /* {
+        reverse_proxy web:3000 {
+            header_up Host {host}
+            header_up X-Real-IP {remote}
+            header_up X-Forwarded-For {remote}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+
+    # API endpoints
+    handle /api/* {
+        reverse_proxy api:3001 {
+            header_up Host {host}
+            header_up X-Real-IP {remote}
+            header_up X-Forwarded-For {remote}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+
+    # Health checks (no auth required)
+    handle /health {
+        reverse_proxy api:3001 {
+            header_up Host {host}
+        }
+    }
+
+    handle /ready {
+        reverse_proxy api:3001 {
+            header_up Host {host}
+        }
+    }
+
+    # MinIO console (optional, for admin access)
+    handle /minio/* {
+        reverse_proxy minio:9001 {
+            header_up Host {host}
+            header_up X-Real-IP {remote}
+            header_up X-Forwarded-For {remote}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+
+    # Rate limiting
+    rate_limit {
+        zone dynamic {
+            key {remote}
+            events 100
+            window 1m
+        }
+    }
+
+    # Gzip compression
+    encode gzip
+
+    # Access log
+    log {
+        output file /var/log/caddy/access.log
+        format json
+    }
+
+    # Error log
+    log {
+        output file /var/log/caddy/error.log {
+            roll_size 100mb
+            roll_keep 10
+        }
+        level ERROR
+    }
+}
