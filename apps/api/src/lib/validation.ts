@@ -63,8 +63,8 @@ export class ValidationService {
     return {
       email: email.toLowerCase().trim(),
       password,
-      firstName: firstName?.trim(),
-      lastName: lastName?.trim(),
+      firstName: typeof firstName === 'string' ? firstName.trim() : undefined,
+      lastName: typeof lastName === 'string' ? lastName.trim() : undefined,
     }
   }
 

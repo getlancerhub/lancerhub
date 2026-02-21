@@ -1,53 +1,28 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
-import { AuthService, JWTPayload } from '../lib/auth.js'
+import { JWTPayload } from '../lib/auth.js'
 
 // Extend FastifyRequest to include user information
-declare module 'fastify' {
-  interface FastifyRequest {
-    user?: JWTPayload
+declare module '@fastify/jwt' {
+  interface FastifyJWT {
+    payload: JWTPayload
+    user: JWTPayload
   }
 }
 
 /**
  * Authentication middleware function
- * Verifies the JWT token from Authorization header or cookies
+ * Verifies the JWT token using Fastify's JWT plugin
  */
 export async function authMiddleware(
   request: FastifyRequest,
   reply: FastifyReply
 ) {
   try {
-    let token: string | undefined
-
-    // Try to get token from Authorization header
-    const authHeader = request.headers.authorization
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      token = authHeader.substring(7)
-    }
-
-    // Fallback to cookie if no Authorization header
-    if (!token) {
-      token = request.cookies?.accessToken
-    }
-
-    if (!token) {
-      return reply.status(401).send({
-        error: 'Unauthorized',
-        message: 'Access token is required',
-      })
-    }
-
-    // Verify the token
-    const payload = AuthService.verifyAccessToken(token)
-
-    // Attach user info to request object
-    request.user = payload
-
-    // Continue to the next handler
+    await request.jwtVerify()
   } catch {
     return reply.status(401).send({
       error: 'Unauthorized',
-      message: 'Invalid or expired access token',
+      message: 'Valid authentication token required',
     })
   }
 }
@@ -61,33 +36,10 @@ export async function optionalAuthMiddleware(
   _reply: FastifyReply
 ) {
   try {
-    let token: string | undefined
-
-    // Try to get token from Authorization header
-    const authHeader = request.headers.authorization
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      token = authHeader.substring(7)
-    }
-
-    // Fallback to cookie if no Authorization header
-    if (!token) {
-      token = request.cookies?.accessToken
-    }
-
-    if (token) {
-      try {
-        const payload = AuthService.verifyAccessToken(token)
-        request.user = payload
-      } catch {
-        // Invalid token, but we continue without user info
-        request.user = undefined
-      }
-    }
-
-    // Always continue to next handler
+    await request.jwtVerify()
   } catch {
-    // Any other error, continue without user info
-    request.user = undefined
+    // Invalid token or no token, but we continue without user info
+    // Fastify JWT plugin will still set request.user to undefined
   }
 }
 
@@ -108,7 +60,7 @@ export function createWorkspaceAuthMiddleware(
     // If auth failed, the reply would already be sent
     if (reply.sent) return
 
-    const user = request.user!
+    const user = request.user as JWTPayload
     const workspaceId = (request.params as Record<string, string>)[
       workspaceIdParam
     ]

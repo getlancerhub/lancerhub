@@ -1,7 +1,7 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
 import { eq } from 'drizzle-orm'
 import { db, users } from '../lib/db.js'
-import { AuthService } from '../lib/auth.js'
+import { AuthService, JWTPayload } from '../lib/auth.js'
 import { ValidationService, ValidationError } from '../lib/validation.js'
 import { authMiddleware } from '../middleware/auth.js'
 
@@ -53,7 +53,7 @@ export async function authRoutes(fastify: FastifyInstance) {
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
         const registerData = ValidationService.validateRegisterInput(
-          request.body
+          request.body as Record<string, unknown>
         )
 
         // Validate email format
@@ -180,7 +180,9 @@ export async function authRoutes(fastify: FastifyInstance) {
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
-        const loginData = ValidationService.validateLoginInput(request.body)
+        const loginData = ValidationService.validateLoginInput(
+          request.body as Record<string, unknown>
+        )
 
         // Find user by email
         const [user] = await db
@@ -276,7 +278,7 @@ export async function authRoutes(fastify: FastifyInstance) {
         // Try to get refresh token from body first, then cookies
         const body = request.body as Record<string, unknown> | undefined
         if (body?.refreshToken) {
-          refreshToken = body.refreshToken
+          refreshToken = body.refreshToken as string
         } else {
           refreshToken = request.cookies?.refreshToken
         }
@@ -373,7 +375,7 @@ export async function authRoutes(fastify: FastifyInstance) {
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
-        const userId = request.user!.userId
+        const userId = (request.user as JWTPayload).userId
 
         const [user] = await db
           .select({
@@ -415,7 +417,7 @@ export async function authRoutes(fastify: FastifyInstance) {
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
         const { email } = ValidationService.validateForgotPasswordInput(
-          request.body
+          request.body as Record<string, unknown>
         )
 
         const [user] = await db
@@ -474,7 +476,9 @@ export async function authRoutes(fastify: FastifyInstance) {
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
         const { token, newPassword } =
-          ValidationService.validateResetPasswordInput(request.body)
+          ValidationService.validateResetPasswordInput(
+            request.body as Record<string, unknown>
+          )
 
         // Validate new password
         const passwordValidation = AuthService.validatePassword(newPassword)

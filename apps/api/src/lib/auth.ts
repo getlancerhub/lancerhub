@@ -47,7 +47,7 @@ export class AuthService {
       expiresIn: ACCESS_TOKEN_EXPIRES_IN,
       issuer: 'lancerhub-api',
       audience: 'lancerhub-client',
-    })
+    } as jwt.SignOptions)
 
     const refreshToken = jwt.sign(
       { userId: payload.userId },
@@ -56,7 +56,7 @@ export class AuthService {
         expiresIn: REFRESH_TOKEN_EXPIRES_IN,
         issuer: 'lancerhub-api',
         audience: 'lancerhub-client',
-      }
+      } as jwt.SignOptions
     )
 
     return { accessToken, refreshToken }
